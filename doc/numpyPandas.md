@@ -156,7 +156,7 @@ array([[6.75167227, 6.91048465, 6.76784294],
 <center>
 <figure>
 <img src="./imgs/numpy-array-axis.png"  title="" width="240" height="180" >
-<img src="./imgs/numpy-array-axis2.png" title="" width="260" height="180" >
+<img src="./imgs/numpy-array-axis2.png" title="" width="300" height="180" >
 <img src="./imgs/numpy-array-axis3.png" title="" width="230" height="190" >
 </figure>
 </center>
@@ -253,6 +253,175 @@ array([40, 41, 42, 43])
 43
 
 ```
+
+## 形状操作
+
+### 改变数组形状
+可以使用各种命令更改数组的形状。
+
+```python
+>>> np.floor(10.3)         # floor()返回不大于参数的最大整数
+10.0
+>>> a = np.floor(10*np.random.random((3,4)))
+>>> a
+array([[5., 9., 6., 3.],
+       [4., 6., 3., 4.],
+       [8., 9., 8., 5.]])
+>>> a.ravel()              # revel()返回扁平数组，原数组不变
+array([5., 9., 6., 3., 4., 6., 3., 4., 8., 9., 8., 5.])
+>>> a.reshape(6,2)         # reshape()返回修改后的数组，原数组不变
+array([[5., 9.],
+       [6., 3.],
+       [4., 6.],
+       [3., 4.],
+       [8., 9.],
+       [8., 5.]])
+>>> a.reshape((3,-1))      # size 指定为-1，则会自动计算其他维度的 size 大小
+array([[5., 9., 6., 3.],
+       [4., 6., 3., 4.],
+       [8., 9., 8., 5.]])
+>>> a.T                    # 返回转置后的数组（矩阵），原数组不变
+array([[5., 4., 8.],
+       [9., 6., 9.],
+       [6., 3., 8.],
+       [3., 4., 5.]])
+>>> a.shape
+(3, 4)
+>>> a.T.shape
+(4, 3)
+>>> a.ravel().shape
+(12,)
+
+>>> a.resize((2,6))        # resize()直接修改原数组
+>>> a
+array([[5., 9., 6., 3., 4., 6.],
+       [3., 4., 8., 9., 8., 5.]])
+```
+
+### 数组堆叠
+几个数组可以沿不同的轴堆叠在一起。
+
+```python
+>>> a = np.floor(10*np.random.random((2,2)))
+>>> a
+array([[3., 9.],
+       [4., 5.]])
+>>> b = np.floor(10*np.random.random((2,2)))
+>>> b
+array([[4., 8.],
+       [2., 2.]])
+>>> np.vstack((a,b))       # 沿竖直轴堆叠
+array([[3., 9.],
+       [4., 5.],
+       [4., 8.],
+       [2., 2.]])
+>>> np.hstack((a,b))       # 沿水平轴堆叠
+array([[3., 9., 4., 8.],
+       [4., 5., 2., 2.]])
+```
+
+### 数组拆分
+可以沿数组的轴拆分数组，指定要返回的形状相等的数组的数量，或指定要在其之后进行分割的行或列。
+
+```python
+>>> a = np.floor(10*np.random.random((2,12)))
+>>> a
+array([[8., 8., 4., 4., 1., 3., 0., 0., 4., 9., 9., 2.],
+       [8., 9., 0., 8., 7., 2., 5., 3., 5., 9., 0., 3.]])
+>>> np.hsplit(a,3)         # 沿水平轴拆分数组为3等份，返回python 列表，原数组不变
+[array([[8., 8., 4., 4.],
+       [8., 9., 0., 8.]]), array([[1., 3., 0., 0.],
+       [7., 2., 5., 3.]]), array([[4., 9., 9., 2.],
+       [5., 9., 0., 3.]])]
+>>> np.hsplit(a, (3,4))    # 沿水平轴拆分第三列，数组总数为3份
+[array([[8., 8., 4.],
+       [8., 9., 0.]]), array([[4.],
+       [8.]]), array([[1., 3., 0., 0., 4., 9., 9., 2.],
+       [7., 2., 5., 3., 5., 9., 0., 3.]])]
+>>> np.vsplit(a,2)         # 沿竖直轴拆分数组为2等份
+[array([[8., 8., 4., 4., 1., 3., 0., 0., 4., 9., 9., 2.]]), array([[8., 9., 0., 8., 7., 2., 5., 3., 5., 9., 0., 3.]])]
+
+>>> x = np.floor(10*np.random.random((3,3)))
+>>> x
+array([[2., 0., 0.],
+       [9., 6., 4.],
+       [3., 9., 6.]])
+>>> np.array_split(x, 3, 1)# 允许指定要分割的轴(=1表示垂直轴)
+[array([[2.],
+       [9.],
+       [3.]]), array([[0.],
+       [6.],
+       [9.]]), array([[0.],
+       [4.],
+       [6.]])]
+>>> np.array_split(x, 3, 0)
+[array([[2., 0., 0.]]), array([[9., 6., 4.]]), array([[3., 9., 6.]])]
+>>> 
+```
+
+### 拷贝和视图
+当计算和操作数组时，有时会将数据复制到新数组中，有时则不会。
+
+```python
+>>> a = np.arange(12)
+>>> b = a                  # 未创建新数组对象（b相当于a的引用）
+>>> b is a
+True
+>>> a
+array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11])
+>>> b
+array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11])
+>>> b[2] = 3
+>>> b
+array([ 0,  1,  3,  3,  4,  5,  6,  7,  8,  9, 10, 11])
+>>> a
+array([ 0,  1,  3,  3,  4,  5,  6,  7,  8,  9, 10, 11])
+>>> def f(x):
+...     print(id(x))
+...
+>>> id(a)                  # id 是一个对象独有的标识
+148293216
+>>> f(a)
+148293216
+
+>>> c = a.view()           # view方法创建一个查看相同数据的新数组对象
+>>> c is a
+False
+>>> c.base is a            # c 是 a 的一个视图
+True
+>>> c.flags.owndata
+False
+>>> c.shape = 2,6          # a 未改变
+>>> a.shape
+(3, 4)
+>>> c[0] = 123                    
+>>> a
+array([ 123,  1,  3,  3,  4,  5,  6,  7,  8,  9, 10, 11])
+
+>>> s = a[1:3]             # 切片数组会返回一个视图
+>>> s
+array([1, 3])
+>>> a                      # a 改变
+array([ 123, 234,   3,   3,   4,   5,   6,   7,   8,   9,  10,  11])
+
+>>> d = a.copy()           # copy方法生成数组及其数据的完整副本
+>>> d is a
+False
+>>> d.base is a
+False
+```
+
+## 常用功能和方法
+按类别排序的一些有用的NumPy函数和方法名称的列表：
++ 数组的创建（Array Creation） - arange, array, copy, empty, empty_like, eye, fromfile, fromfunction, identity, linspace, logspace, mgrid, ogrid, ones, ones_like, zeros, zeros_like
++ 转换和变换（Conversions） - ndarray.astype, atleast_1d, atleast_2d, atleast_3d, mat
++ 操纵术（Manipulations） - array_split, column_stack, concatenate, diagonal, dsplit, dstack, hsplit, hstack, ndarray.item, newaxis, ravel, repeat, reshape, resize, squeeze, swapaxes, take, transpose, vsplit, vstack
++ 询问（Questions） - all, any, nonzero, where,
++ 顺序（Ordering） - argmax, argmin, argsort, max, min, ptp, searchsorted, sort
++ 操作（Operations） - choose, compress, cumprod, cumsum, inner, ndarray.fill, imag, prod, put, putmask, real, sum
++ 基本统计（Basic Statistics） - cov, mean, std, var
++ 基本线性代数（Basic Linear Algebra） - cross, dot, outer, linalg.svd, vdot
+
 
 # Pandas
 
