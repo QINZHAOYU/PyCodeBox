@@ -1,0 +1,18 @@
+{
+    "python.pythonPath": "D:\\python3.7_x64\\python.exe",
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./tests",
+        "-p",
+        "test_*.py"
+    ],
+    "python.testing.pytestEnabled": false,
+    "python.testing.nosetestsEnabled": false,
+    "python.testing.unittestEnabled": false,
+    "python.autoComplete.extraPaths": [
+    
+    ],
+
+    "python.languageServer": "Microsoft",
+}
