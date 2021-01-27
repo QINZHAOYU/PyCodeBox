@@ -1,0 +1,33 @@
+{
+    // name - 当前调试配置项的名称，可读性要好，区分每个调试配置项
+
+    // type - 用于此启动配置的调试器的类型。每个已安装的调试扩展都引入一种类型：例如node，php，go 等。
+    
+    // request - 当前调试项的类型，目前支持 launch 和 attach 两种类型。launch 适合调试未启动的程序，attach 则适合调试已经运行的程序。
+
+    // program - 启动调试器时要运行的可执行程序或文件
+    
+    // args - 传递给程序进行调试的参数
+    
+    // env - 调试时的环境变量
+    
+    // envFile - 包含环境变量键值对的文件
+    
+    // stopOnEntry - 程序启动时立即中断
+    
+    // port - 连接到正在运行的调试器的端口
+    
+    // runtimeExecutable - 启用调试的可执行 Runtime，默认是 Node
+
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: type1",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "cwd": "${fileDirname}",
+            "console": "integratedTerminal"
+        }
+    ]
+}
