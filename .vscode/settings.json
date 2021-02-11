@@ -1,5 +1,4 @@
 {
-    "python.pythonPath": "D:\\python3.7_x64\\python.exe",
     "python.testing.unittestArgs": [
         "-v",
         "-s",
