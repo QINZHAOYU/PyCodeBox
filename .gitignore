@@ -1,0 +1,9 @@
+./vscode
+.idea
+.idea/
+.ipynb_checkpoints
+__pycache__
+prep/
+build/
+.ipynb_checkpoints/
+cmake-build-debug/
