@@ -1,10 +1,10 @@
 # -*- encoding: utf-8 -*-
 # -------------------------------------------------------------------------------
 '''
-@Copyright :  Copyright(C) 2021, KeepSoft. All rights reserved. 
+@Copyright :  Copyright(C) 2021, Qin ZhaoYu. All rights reserved. 
 
 @File      :  TimeSeriesHandler.py  
-@Desc      :  To accumulate or interpolate rainfall timeseries.  
+@Desc      :  To accumulate or interpolate timeseries.  
 
 Change History:
 ---------------------------------------------------------------------------------
