@@ -223,46 +223,46 @@ if __name__ == "__main__":
     print("------------------------- TimeSeriesHandler --------------------------")
     print("----------------------------------------------------------------------")
 
-    tsFile = raw_input("Please input timeseries file:")
-    outFile = raw_input("Please input output file:")
-    ID = raw_input("Please input ID of timeseries:")
+    tsFile = input("Please input timeseries file:")
+    outFile = input("Please input output file:")
+    ID = input("Please input ID of timeseries:")
     step = input("Please input output timestep(s):")
 
     if input("If ID located at column 1 [y/n]:").upper() == "Y":
         idCol = 1
     else:
-        idCol = input("Please input ID column:")
+        idCol = int(input("Please input ID column:"))
 
     if input("If date located at column 2 [y/n]:").upper() == "Y":
         dateCol = 1
     else:
-        dateCol = input("Please input date column:")
+        dateCol = int(input("Please input date column:"))
 
     if input("If value located at column 4 [y/n]:").upper() == "Y":
         valCol = 4
     else:
-        valCol = input("Please input value column:")
+        valCol = int(input("Please input value column:"))
 
     if input("If input datetime fmt is '%Y/%m/%d %H:%M:%S' [y/n]:").upper() == "Y":
         inputFmt = "%Y/%m/%d %H:%M:%S"
     else:
-        inputFmt = raw_input("Please input datetime fmt:")
+        inputFmt = input("Please input datetime fmt:")
 
     if input("If output datetime fmt is '%Y/%m/%d %H:%M:%S' [y/n]:").upper() == "Y":
         outFmt = "%Y/%m/%d %H:%M:%S"
     else:
-        outFmt = raw_input("Please input datetime fmt:")
+        outFmt = input("Please input datetime fmt:")
 
-    startDate = raw_input("Please input start datetime:")
-    stopDate = raw_input("Please input stop datetime:")
+    startDate = input("Please input start datetime:")
+    stopDate = input("Please input stop datetime:")
 
     print("Please choice resampling mode:\n \
         1, for resampling continues timeseries by accumulating; \
         2, for resampling isolated timeseries by accumulating; \
         3, for resampling conitnues timeseries by iterpolating.")
-    mode = input("Mode:")
-    while (mode not in [1, 2, 3])
-        mode = input("Please input valid mode: ")
+    mode = int(input("Mode:"))
+    while (mode not in [1, 2, 3]):
+        mode = int(input("Please input valid mode: "))
 	
     stationTS = TimeSeriesHandler.readTimeSeries(tsFile, idCol, dateCol, valCol, inputFmt)
 
