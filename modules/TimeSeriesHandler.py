@@ -257,8 +257,8 @@ if __name__ == "__main__":
     stopDate = input("Please input stop datetime:")
 
     print("Please choice resampling mode:\n \
-        1, for resampling continues timeseries by accumulating; \
-        2, for resampling isolated timeseries by accumulating; \
+        1, for resampling continues timeseries by accumulating;\n \
+        2, for resampling isolated timeseries by accumulating;\n \
         3, for resampling conitnues timeseries by iterpolating.")
     mode = int(input("Mode:"))
     while (mode not in [1, 2, 3]):
