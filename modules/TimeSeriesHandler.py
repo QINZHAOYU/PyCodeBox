@@ -24,6 +24,9 @@ Fix zero divisior bug in resample-methods; add checkRepeated().
 version 1.1.1, Qin ZhaoYu, 2021-10-14,
 Add timeseries sorting in reading data.
 ---------------------------------------------------------------------------------
+version 1.1.2, Qin ZhaoYu, 2021-11-16,
+Fix delta-time counting bug.
+---------------------------------------------------------------------------------
 '''
 # -------------------------------------------------------------------------------
 import datetime, os
@@ -107,11 +110,11 @@ class TimeSeriesHandler():
                 newTs.append([currDate, round(nextVal, 4)])
             else:
                 lastDate, lastVal = valArr[nextValInd - 1]
-                deltaTime = (nextDate - lastDate).seconds
+                deltaTime = (nextDate - lastDate).total_seconds()
                 if deltaTime <= 0:
                     ratio = 0
                 else:
-                    ratio = (currDate - lastDate).seconds/deltaTime
+                    ratio = (currDate - lastDate).total_seconds()/deltaTime
                 currVal = ratio * nextVal + (1 - ratio) * lastVal
                 newTs.append([currDate, round(currVal, 4)])
             currDate += datetime.timedelta(seconds=step)
@@ -180,16 +183,16 @@ class TimeSeriesHandler():
                 newTs.append([currDate, 0.0])
             else:
                 currVal = 0.0
-                currTimeDelta = (currDate - valArr[currIndex - 1][0]).seconds
-                currOrigTimeDelta = (valArr[currIndex][0] - valArr[currIndex - 1][0]).seconds
+                currTimeDelta = (currDate - valArr[currIndex - 1][0]).total_seconds()
+                currOrigTimeDelta = (valArr[currIndex][0] - valArr[currIndex - 1][0]).total_seconds()
                 if currOrigTimeDelta <= 0:
                     currRatio = 0
                 else:
                     currRatio = currTimeDelta / currOrigTimeDelta
                 currVal += currRatio * valArr[currIndex][1] # split current step rainfall.
                 if lastIndex > 0:
-                    lastTimeDelta = (valArr[lastIndex][0] - lastDate).seconds
-                    lastOrigTimeDelta = (valArr[lastIndex][0] - valArr[lastIndex - 1][0]).seconds
+                    lastTimeDelta = (valArr[lastIndex][0] - lastDate).total_seconds()
+                    lastOrigTimeDelta = (valArr[lastIndex][0] - valArr[lastIndex - 1][0]).total_seconds()
                     if lastOrigTimeDelta <= 0:
                         lastRatio = 0
                     else:
