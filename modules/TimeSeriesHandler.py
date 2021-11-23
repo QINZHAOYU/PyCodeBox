@@ -226,55 +226,21 @@ if __name__ == "__main__":
     print("------------------------- TimeSeriesHandler --------------------------")
     print("----------------------------------------------------------------------")
 
-    tsFile = input("Please input timeseries file:")
-    outFile = input("Please input output file:")
-    ID = input("Please input ID of timeseries:")
-    step = input("Please input output timestep(s):")
-
-    if input("If ID located at column 1 [y/n]:").upper() == "Y":
-        idCol = 1
-    else:
-        idCol = int(input("Please input ID column:"))
-
-    if input("If date located at column 2 [y/n]:").upper() == "Y":
-        dateCol = 1
-    else:
-        dateCol = int(input("Please input date column:"))
-
-    if input("If value located at column 4 [y/n]:").upper() == "Y":
-        valCol = 4
-    else:
-        valCol = int(input("Please input value column:"))
-
-    if input("If input datetime fmt is '%Y/%m/%d %H:%M:%S' [y/n]:").upper() == "Y":
-        inputFmt = "%Y/%m/%d %H:%M:%S"
-    else:
-        inputFmt = input("Please input datetime fmt:")
-
-    if input("If output datetime fmt is '%Y/%m/%d %H:%M:%S' [y/n]:").upper() == "Y":
-        outFmt = "%Y/%m/%d %H:%M:%S"
-    else:
-        outFmt = input("Please input datetime fmt:")
-
-    startDate = input("Please input start datetime:")
-    stopDate = input("Please input stop datetime:")
-
-    print("Please choice resampling mode:\n \
-        1, for resampling continues timeseries by accumulating;\n \
-        2, for resampling isolated timeseries by accumulating;\n \
-        3, for resampling conitnues timeseries by iterpolating.")
-    mode = int(input("Mode:"))
-    while (mode not in [1, 2, 3]):
-        mode = int(input("Please input valid mode: "))
+    tsFile = r"C:\\Users\\gr\\Desktop\\工具包\\时间序列重构\\timeseries.txt"
+    outFile = r"C:\\Users\\gr\\Desktop\\工具包\\时间序列重构\\result.txt"
+    step = 3600
+    idCol = 1
+    dateCol = 2
+    valCol = 4
+    inputFmt = "%Y/%m/%d %H:%M:%S"
+    outFmt = "%Y/%m/%d %H:%M:%S"
+    station = "41822560"
+    startDate = "2021/10/8 8:00:00"
+    stopDate = "2021/10/10 18:00:00"
 	
     stationTS = TimeSeriesHandler.readTimeSeries(tsFile, idCol, dateCol, valCol, inputFmt)
-
-    if mode == 1:
-        newTs = TimeSeriesHandler.resampleByAccumulateContinue(startDate, stopDate, stationTS[ID], step)
-    elif mode == 2:
-        newTs = TimeSeriesHandler.resampleByAccumulateIsolate(startDate, stopDate, stationTS[ID], step)
-    elif mode == 3:
-        newTs = TimeSeriesHandler.resampleByInterpolateLinear(startDate, stopDate, stationTS[ID], step)
-
-    TimeSeriesHandler.output(outFile, newTs, ID, outFmt)
+    # newTs = TimeSeriesHandler.resampleByAccumulateContinue(startDate, stopDate, stationTS[station], step)
+    newTs = TimeSeriesHandler.resampleByAccumulateIsolate(startDate, stopDate, stationTS[station], step)
+    # newTs = TimeSeriesHandler.resampleByInterpolateLinear(startDate, stopDate, stationTS[station], step)
+    TimeSeriesHandler.output(outFile, newTs, station, outFmt)
 
