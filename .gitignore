@@ -7,3 +7,5 @@ prep/
 build/
 .ipynb_checkpoints/
 cmake-build-debug/
+*/report.html
+*/result.txt
