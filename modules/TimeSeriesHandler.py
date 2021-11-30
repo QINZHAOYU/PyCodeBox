@@ -2,8 +2,10 @@
 # -------------------------------------------------------------------------------
 '''
 @Copyright :  Copyright(C) 2021, Qin ZhaoYu. All rights reserved. 
+ 
+@Author    :  Qin ZhaoYu  
+@See       :  https://github.com/QINZHAOYU
 
-@File      :  TimeSeriesHandler.py  
 @Desc      :  To accumulate or interpolate timeseries.  
 
 Change History:
