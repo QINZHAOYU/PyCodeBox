@@ -1,6 +1,6 @@
 # Keras学习指南
 
-[keras 中文文档](https://keras.io/zh/) 
+[keras 中文文档](https://keras-zh.readthedocs.io/) 
 
 [keras入门](#keras入门)   
 [预测波士顿房价的keras深度神经网络模型](#预测波士顿房价的keras深度神经网络模型)  
@@ -41,15 +41,17 @@ model = Sequential()
 '''
 from keras.layers import Dense
 
-model.add(Dense(units=64, activation='relu', input_dim=100))
-model.add(Dense(units=10, activation='softmax'))
+model.add(Dense(units=64,           # 输出空间维度
+                activation='relu',  # 激活函数
+                input_dim=100))     # 输入控件维度
+model.add(Dense(units=10, activation='softmax'))  # 全连接层 Dense
 
 
 '''使用 .compile() 配置学习过程
 '''
-model.compile(loss='categorical_crossentropy',
-              optimizer='sgd',
-              metrics=['accuracy'])
+model.compile(loss='categorical_crossentropy',   # 损失函数
+              optimizer='sgd',    # 优化器
+              metrics=['accuracy']) # 评价函数，和 损失函数相似，只不过评价函数的结果不会用于训练过程中。
 
 
 '''批量地在训练数据上进行迭代
