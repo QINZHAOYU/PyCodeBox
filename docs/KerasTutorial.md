@@ -1,10 +1,389 @@
-# Keras Tutorial
-
-Keras 学习指南。
+# Keras学习指南
 
 [keras 中文文档](https://keras.io/zh/) 
 
+[keras入门](#keras入门)   
+[预测波士顿房价的keras深度神经网络模型](#预测波士顿房价的keras深度神经网络模型)  
+
+
+
 ![keras](./imgs/keras-manual.png) 
+
+------
+
+# keras入门
+
+Keras 的核心数据结构是 model，一种组织网络层的方式。最简单的模型是 Sequential 顺序模型，  
+它由多个网络层线性堆叠。对于更复杂的结构，你应该使用 Keras 函数式 API，  
+它允许构建任意的神经网络图。
+
+Keras 的核心原则是使事情变得相当简单，  
+同时又允许用户在需要的时候能够进行完全的控制（终极的控制是源代码的易扩展性）。
+
+[Sequential顺序模型](#Sequential顺序模型)  
+[模型训练和评估](#模型训练和评估)   
+[模型存储和加载](#模型存储和加载)  
+[模型加速](#模型加速)   
+[模型迁移](#模型迁移)
+
+
+[top](#Keras学习指南)
+
+```python
+'''使用 Sequential 顺序模型
+'''
+from keras.models import Sequential
+
+model = Sequential()
+
+
+'''使用 .add() 堆叠模型
+'''
+from keras.layers import Dense
+
+model.add(Dense(units=64, activation='relu', input_dim=100))
+model.add(Dense(units=10, activation='softmax'))
+
+
+'''使用 .compile() 配置学习过程
+'''
+model.compile(loss='categorical_crossentropy',
+              optimizer='sgd',
+              metrics=['accuracy'])
+
+
+'''批量地在训练数据上进行迭代
+'''
+# x_train 和 y_train 是 Numpy 数组。
+model.fit(x_train, y_train, epochs=5, batch_size=32)
+
+
+'''评估模型性能
+'''
+loss_and_metrics = model.evaluate(x_test, y_test, batch_size=128)
+
+
+'''对新的数据生成预测
+'''
+classes = model.predict(x_test, batch_size=128)
+
+```
+
+------
+
+## Sequential顺序模型
+
+Tutorial from [sequential_model](https://keras.io/guides/sequential_model/): 
+
+A Sequential model is appropriate for a plain stack of layers where each layer has  
+exactly one input tensor and one output tensor.
+
+```python
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+```
+
+### Creating a Sequential model
+
+```python
+#---------------------------------------------------------------
+# style 1
+#---------------------------------------------------------------
+
+# Define Sequential model with 3 layers.
+# To create a Sequential model by passing a list of layers to the Sequential constructor.
+model = keras.Sequential(
+    [
+        layers.Dense(2, activation="relu", name="layer1"), # with layer name and activation function.
+        layers.Dense(3, activation="relu", name="layer2"),
+        layers.Dense(4, name="layer3"),
+    ]
+)
+
+# Call model on a test input.
+x = tf.ones((3, 3)) # specified input shape.
+y = model(x)
+
+#---------------------------------------------------------------
+# style 2
+#---------------------------------------------------------------
+
+# Create 3 layers.
+layer1 = layers.Dense(2, activation="relu", name="layer1")
+layer2 = layers.Dense(3, activation="relu", name="layer2")
+layer3 = layers.Dense(4, name="layer3")
+
+# Call layers on a test input.
+x = tf.ones((3, 3))
+y = layer3(layer2(layer1(x)))
+
+#---------------------------------------------------------------
+# style 3
+#---------------------------------------------------------------
+
+model = keras.Sequential(name="my_sequential") # accept name too.
+
+# To create a Sequential model incrementally via the add() method.
+model.add(layers.Dense(2, activation="relu"))
+model.add(layers.Dense(3, activation="relu"))
+model.add(layers.Dense(4))
+
+# Call model on a test input.
+x = tf.ones((3, 3)) # specified input shape.
+y = model(x)
+
+```
+
+------
+
+### Specifying the input shape in advance
+
+Generally, all layers in Keras need to know the shape of their inputs in order to be able   
+to create their `weights`, or it has no weights.
+
+When you instantiate a Sequential model without an input shape, it isn't "built":   
+it has no weights. The weights are created when the model first sees some input data.
+
+Once a model is "built", you can call its `summary()` method to display its contents.
+
+```python
+#---------------------------------------------------------------
+# case 1: create a layer without an input shape
+#---------------------------------------------------------------
+
+layer = layers.Dense(3)
+layer.weights  # Empty
+
+# Call layer on a test input.
+x = tf.ones((1, 4))
+y = layer(x)
+layer.weights  # Now it has weights, of shape (4, 3) and (3,)
+
+#---------------------------------------------------------------
+# case 1: create a Sequential model without an input shape
+#---------------------------------------------------------------
+
+model = keras.Sequential(
+    [
+        layers.Dense(2, activation="relu"),
+        layers.Dense(3, activation="relu"),
+        layers.Dense(4),
+    ]
+)  # No weights at this stage!
+
+# At this point, you can't do this:
+# model.weights
+
+# You also can't do this:
+# model.summary()
+
+# Call the model on a test input.
+x = tf.ones((1, 4))
+y = model(x)
+print("Number of weights after calling the model:", len(model.weights))  # 6
+
+# call `.summary()` to display its contents.
+model.summary()
+
+```
+
+However, it can be very useful when building a Sequential model incrementally to  
+be able to display the summary of the model so far, including the current output shape.   
+In this case, you should start your model by passing an `Input` object to your model,  
+so that it knows its input shape from the start.
+
+A simple alternative is to just pass an `input_shape` argument to your first layer.  
+Models built with a predefined input shape like this always have weights (even before seeing any data)   
+and always have a defined output shape.
+
+In general, it's a recommended best practice to always specify the input shape of   
+a Sequential model in advance if you know what it is.
+
+```python
+#---------------------------------------------------------------
+# case 1: create a Sequential model with given an input shape
+#---------------------------------------------------------------
+model = keras.Sequential()
+model.add(keras.Input(shape=(4,)))
+model.add(layers.Dense(2, activation="relu"))
+
+model.summary()
+
+#---------------------------------------------------------------
+# case 2: create a Sequential model with given shape layer
+#---------------------------------------------------------------
+
+model = keras.Sequential()
+model.add(layers.Dense(2, activation="relu", input_shape=(4,))) # first layer with shape.
+
+model.summary()
+
+```
+
+------
+
+### A common debugging workflow: `add()` + `summary()`
+
+When building a new Sequential architecture, it's useful to incrementally stack layers   
+with `add()` and frequently print model summaries. 
+
+For instance, this enables you to monitor how a stack of `Conv2D` and `MaxPooling2D` layers is   
+downsampling image feature maps:
+
+```python
+model = keras.Sequential()
+model.add(keras.Input(shape=(250, 250, 3)))  # 250x250 RGB images
+model.add(layers.Conv2D(32, 5, strides=2, activation="relu")) # convolution layer
+model.add(layers.Conv2D(32, 3, activation="relu"))
+model.add(layers.MaxPooling2D(3)) # pooling layer
+
+# Can you guess what the current output shape is at this point? Probably not.
+# Let's just print it:
+model.summary()
+
+# The answer was: (40, 40, 32), so we can keep downsampling...
+
+model.add(layers.Conv2D(32, 3, activation="relu"))
+model.add(layers.Conv2D(32, 3, activation="relu"))
+model.add(layers.MaxPooling2D(3))
+model.add(layers.Conv2D(32, 3, activation="relu"))
+model.add(layers.Conv2D(32, 3, activation="relu"))
+model.add(layers.MaxPooling2D(2))
+
+# And now?
+model.summary()
+
+# Now that we have 4x4 feature maps, time to apply global max pooling.
+model.add(layers.GlobalMaxPooling2D())
+
+# Finally, we add a classification layer.
+model.add(layers.Dense(10))
+
+```
+
+------
+
+### Feature extraction with a Sequential model
+
+Once a Sequential model has been built, it behaves like a Functional API model.   
+This means that every layer has an input and output attribute.   
+These attributes can be used to do neat things, like quickly creating a model   
+that extracts the outputs of all intermediate layers in a Sequential model.
+
+```python
+initial_model = keras.Sequential(
+    [
+        keras.Input(shape=(250, 250, 3)),
+        layers.Conv2D(32, 5, strides=2, activation="relu", name="layer1"),
+        layers.Conv2D(32, 3, activation="relu", name="layer2"),
+        layers.Conv2D(32, 3, activation="relu", name="layer3"),
+    ]
+)
+
+# extract features from all layers.
+feature_extractor_all = keras.Model(
+    inputs=initial_model.inputs,
+    outputs=[layer.output for layer in initial_model.layers],
+)
+
+# extract features from one layer.
+feature_extractor_layer2 = keras.Model(
+    inputs=initial_model.inputs,
+    outputs=initial_model.get_layer(name="layer2").output,
+)
+
+# Call feature extractor on test input.
+x = tf.ones((1, 250, 250, 3))
+features1 = feature_extractor_all(x)
+features2 = feature_extractor_layer2(x)
+```
+
+------
+
+### Transfer learning with a Sequential model
+
+Transfer learning consists of freezing the bottom layers in a model and only training the top layers.  
+
+Here are two common transfer learning blueprint involving Sequential models.
+
+First, let's say that you have a Sequential model, and you want to freeze all layers except the last one.   
+In this case, you would simply iterate over `model.layers` and set `layer.trainable = False` on each layer,  
+except the last one.
+
+```python
+model = keras.Sequential([
+    keras.Input(shape=(784)),
+    layers.Dense(32, activation='relu'),
+    layers.Dense(32, activation='relu'),
+    layers.Dense(32, activation='relu'),
+    layers.Dense(10),
+])
+
+# Presumably you would want to first load pre-trained weights.
+model.load_weights(...)
+
+# Freeze all layers except the last one.
+for layer in model.layers[:-1]:
+  layer.trainable = False
+
+# Recompile and train (this will only update the weights of the last layer).
+model.compile(...)
+model.fit(...)
+
+```
+
+Another common blueprint is to use a Sequential model to stack a pre-trained model and  
+some freshly initialized classification layers.
+
+```python
+# Load a convolutional base with pre-trained weights
+base_model = keras.applications.Xception(
+    weights='imagenet',
+    include_top=False,
+    pooling='avg')
+
+# Freeze the base model
+base_model.trainable = False
+
+# Use a Sequential model to add a trainable classifier on top
+model = keras.Sequential([
+    base_model,
+    layers.Dense(1000),
+])
+
+# Compile & train
+model.compile(...)
+model.fit(...)
+
+```
+
+------
+
+## 模型训练和评估
+
+[keras模型训练和评估](https://keras.io/guides/training_with_built_in_methods/)  
+
+
+## 模型存储和加载
+
+[keras模型存储和加载](https://keras.io/guides/serialization_and_saving/)
+
+------
+
+## 模型加速
+
+[keras模型加速](https://keras.io/guides/distributed_training/)
+
+------
+
+## 模型迁移 
+
+[keras模型迁移](https://keras.io/guides/transfer_learning/)
+
+
+
+[back](#keras入门)
 
 ------
 
@@ -12,7 +391,8 @@ Keras 学习指南。
 
 [深度学习建模预测全流程（Python）](https://mp.weixin.qq.com/s/hbyRhGpPvBHdUAARmw2K8g?from=singlemessage&scene=1&subscene=10000&clicktime=1638229745&enterid=1638229745) 
 
-机器学习一般可以概括为：从数据出发，选择某种模型，通过优化算法更新模型的参数值，使任务的指标表现变好（学习目标），  
+机器学习一般可以概括为：从数据出发，选择某种模型，通过优化算法更新模型的参数值，  
+使任务的指标表现变好（学习目标），  
 最终学习到“好”的模型，并运用模型对数据做预测以完成任务。由此可见，  
 机器学习方法有四个要素：数据、模型、学习目标、优化算法。
 
@@ -20,6 +400,8 @@ Keras 学习指南。
 [特征工程](#特征工程)  
 [模型训练](#模型训练)  
 [模型评估及优化](#模型评估及优化)  
+
+[top](#Keras学习指南)
 
 ![keras](./imgs/keras-manual2.jpg) 
 
