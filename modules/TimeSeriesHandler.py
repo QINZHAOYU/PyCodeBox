@@ -2,8 +2,10 @@
 # -------------------------------------------------------------------------------
 '''
 @Copyright :  Copyright(C) 2021, Qin ZhaoYu. All rights reserved. 
+ 
+@Author    :  Qin ZhaoYu  
+@See       :  https://github.com/QINZHAOYU
 
-@File      :  TimeSeriesHandler.py  
 @Desc      :  To accumulate or interpolate timeseries.  
 
 Change History:
@@ -23,6 +25,9 @@ Fix zero divisior bug in resample-methods; add checkRepeated().
 ---------------------------------------------------------------------------------
 version 1.1.1, Qin ZhaoYu, 2021-10-14,
 Add timeseries sorting in reading data.
+---------------------------------------------------------------------------------
+version 1.1.2, Qin ZhaoYu, 2021-11-16,
+Fix delta-time counting bug.
 ---------------------------------------------------------------------------------
 '''
 # -------------------------------------------------------------------------------
@@ -107,11 +112,11 @@ class TimeSeriesHandler():
                 newTs.append([currDate, round(nextVal, 4)])
             else:
                 lastDate, lastVal = valArr[nextValInd - 1]
-                deltaTime = (nextDate - lastDate).seconds
+                deltaTime = (nextDate - lastDate).total_seconds()
                 if deltaTime <= 0:
                     ratio = 0
                 else:
-                    ratio = (currDate - lastDate).seconds/deltaTime
+                    ratio = (currDate - lastDate).total_seconds()/deltaTime
                 currVal = ratio * nextVal + (1 - ratio) * lastVal
                 newTs.append([currDate, round(currVal, 4)])
             currDate += datetime.timedelta(seconds=step)
@@ -180,16 +185,16 @@ class TimeSeriesHandler():
                 newTs.append([currDate, 0.0])
             else:
                 currVal = 0.0
-                currTimeDelta = (currDate - valArr[currIndex - 1][0]).seconds
-                currOrigTimeDelta = (valArr[currIndex][0] - valArr[currIndex - 1][0]).seconds
+                currTimeDelta = (currDate - valArr[currIndex - 1][0]).total_seconds()
+                currOrigTimeDelta = (valArr[currIndex][0] - valArr[currIndex - 1][0]).total_seconds()
                 if currOrigTimeDelta <= 0:
                     currRatio = 0
                 else:
                     currRatio = currTimeDelta / currOrigTimeDelta
                 currVal += currRatio * valArr[currIndex][1] # split current step rainfall.
                 if lastIndex > 0:
-                    lastTimeDelta = (valArr[lastIndex][0] - lastDate).seconds
-                    lastOrigTimeDelta = (valArr[lastIndex][0] - valArr[lastIndex - 1][0]).seconds
+                    lastTimeDelta = (valArr[lastIndex][0] - lastDate).total_seconds()
+                    lastOrigTimeDelta = (valArr[lastIndex][0] - valArr[lastIndex - 1][0]).total_seconds()
                     if lastOrigTimeDelta <= 0:
                         lastRatio = 0
                     else:
@@ -223,55 +228,21 @@ if __name__ == "__main__":
     print("------------------------- TimeSeriesHandler --------------------------")
     print("----------------------------------------------------------------------")
 
-    tsFile = raw_input("Please input timeseries file:")
-    outFile = raw_input("Please input output file:")
-    ID = raw_input("Please input ID of timeseries:")
-    step = input("Please input output timestep(s):")
-
-    if input("If ID located at column 1 [y/n]:").upper() == "Y":
-        idCol = 1
-    else:
-        idCol = input("Please input ID column:")
-
-    if input("If date located at column 2 [y/n]:").upper() == "Y":
-        dateCol = 1
-    else:
-        dateCol = input("Please input date column:")
-
-    if input("If value located at column 4 [y/n]:").upper() == "Y":
-        valCol = 4
-    else:
-        valCol = input("Please input value column:")
-
-    if input("If input datetime fmt is '%Y/%m/%d %H:%M:%S' [y/n]:").upper() == "Y":
-        inputFmt = "%Y/%m/%d %H:%M:%S"
-    else:
-        inputFmt = raw_input("Please input datetime fmt:")
-
-    if input("If output datetime fmt is '%Y/%m/%d %H:%M:%S' [y/n]:").upper() == "Y":
-        outFmt = "%Y/%m/%d %H:%M:%S"
-    else:
-        outFmt = raw_input("Please input datetime fmt:")
-
-    startDate = raw_input("Please input start datetime:")
-    stopDate = raw_input("Please input stop datetime:")
-
-    print("Please choice resampling mode:\n \
-        1, for resampling continues timeseries by accumulating; \
-        2, for resampling isolated timeseries by accumulating; \
-        3, for resampling conitnues timeseries by iterpolating.")
-    mode = input("Mode:")
-    while (mode not in [1, 2, 3])
-        mode = input("Please input valid mode: ")
+    tsFile = r"C:\\Users\\gr\\Desktop\\工具包\\时间序列重构\\timeseries.txt"
+    outFile = r"C:\\Users\\gr\\Desktop\\工具包\\时间序列重构\\result.txt"
+    step = 3600
+    idCol = 1
+    dateCol = 2
+    valCol = 4
+    inputFmt = "%Y/%m/%d %H:%M:%S"
+    outFmt = "%Y/%m/%d %H:%M:%S"
+    station = "41822560"
+    startDate = "2021/10/8 8:00:00"
+    stopDate = "2021/10/10 18:00:00"
 	
     stationTS = TimeSeriesHandler.readTimeSeries(tsFile, idCol, dateCol, valCol, inputFmt)
-
-    if mode == 1:
-        newTs = TimeSeriesHandler.resampleByAccumulateContinue(startDate, stopDate, stationTS[ID], step)
-    elif mode == 2:
-        newTs = TimeSeriesHandler.resampleByAccumulateIsolate(startDate, stopDate, stationTS[ID], step)
-    elif mode == 3:
-        newTs = TimeSeriesHandler.resampleByInterpolateLinear(startDate, stopDate, stationTS[ID], step)
-
-    TimeSeriesHandler.output(outFile, newTs, ID, outFmt)
+    # newTs = TimeSeriesHandler.resampleByAccumulateContinue(startDate, stopDate, stationTS[station], step)
+    newTs = TimeSeriesHandler.resampleByAccumulateIsolate(startDate, stopDate, stationTS[station], step)
+    # newTs = TimeSeriesHandler.resampleByInterpolateLinear(startDate, stopDate, stationTS[station], step)
+    TimeSeriesHandler.output(outFile, newTs, station, outFmt)
 
