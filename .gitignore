@@ -9,3 +9,4 @@ build/
 cmake-build-debug/
 */report.html
 */result.txt
+.vscode/

@@ -551,7 +551,8 @@ DatetimeIndex(['2021-01-01', '2021-01-02', '2021-01-03', '2021-01-04',
 >>> df2 = pd.DataFrame({'A':1, 
                         'B':pd.Timestamp("20200101"),
                         'C':np.array([3]*4, dtype='int32'), 
-                        'D':pd.Series(1, index=list(range(4)), dtype='float32'), 'E': pd.Categorical(["test", "train", "test", "train"]),
+                        'D':pd.Series(1, index=list(range(4)), dtype='float32'), 
+                        'E': pd.Categorical(["test", "train", "test", "train"]),
                         'F': 'foo'})
 >>> df2                                  # 自动对齐
    A          B  C    D      E    F
